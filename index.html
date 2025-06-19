@@ -1,0 +1,215 @@
+﻿<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>媒日依米因</title>
+    <style>
+        body {
+            font-family: "Microsoft JhengHei", sans-serif;
+            margin: 0; padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background-color: #222;
+            color: #eee;
+            transition: background-color 0.5s ease;
+            padding: 20px;
+            text-align: center;
+        }
+
+        img {
+            max-width: 100vw;
+            max-height: 100vh;
+            border-radius: 12px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.8);
+            margin-bottom: 15px;
+        }
+
+        h2 {
+            margin-bottom: 8px;
+        }
+
+        #advice {
+            font-style: italic;
+            margin-top: 12px;
+            max-width: 90vw;
+            color: #ccc;
+            user-select: none;
+        }
+
+        button {
+            margin-top: 15px;
+            padding: 8px 20px;
+            font-size: 1rem;
+            cursor: pointer;
+            border-radius: 8px;
+            border: none;
+            background-color: #555;
+            color: #eee;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #888;
+        }
+
+        .floating-ad {
+            position: fixed;
+            bottom: 20px;
+            z-index: 999;
+            width: 400px;
+            height: 700px;
+            opacity: 0.8;
+            transition: opacity 0.3s;
+        }
+        .left-ad {
+            bottom:10%;
+            left: 20px;
+        }
+
+        .right-ad {
+            right: 20px;
+            bottom:10%;
+        }
+
+        .floating-ad:hover {
+            opacity: 1;
+        }
+
+        .floating-ad img {
+            overflow: hidden;
+            width: 100%;
+            height: 100%;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.6);
+        }
+
+        .close-btn {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: absolute;
+            background-color: transparent;
+            border: none;
+            color: white;
+            font-weight: bold;
+            font-size: 10px;
+            z-index: 1000;
+            width: 5px;
+            height: 11px;
+        }
+
+        .close-btn:hover {
+            color: red;
+        }
+
+        @media (max-width: 768px) {
+            .floating-ad {
+                width: 100%;
+                height: 100px;
+                left: 0 !important;
+                right: 0 !important;
+                bottom: auto;
+            }
+
+            .left-ad {
+                top: 0; /* 改成上方橫幅 */
+            }
+
+            .right-ad {
+                bottom: 0; /* 改成下方橫幅 */
+            }
+
+            .floating-ad img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                border-radius: 0;
+            }
+
+            .floating-ad p {
+                display: none; /* 可選：不顯示廣告文字，保持乾淨 */
+            }
+
+            .close-btn {
+                top: 5px;
+                right: 10px;
+                width: 24px;
+                height: 24px;
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<h1>今日迷因</h1>
+<img id="meme" src="" alt="迷因圖片" />
+<h2 id="title"></h2>
+<div id="advice"></div>
+<button id="refreshBtn">換一張迷因</button>
+
+<!-- 左懸浮廣告 -->
+<div class="floating-ad left-ad" id="leftAd">
+    <button class="close-btn" onclick="hideAd('leftAd')">✕</button>
+    <p>全國阿薛 揪甘心A</p>
+    <a href="https://www.instagram.com/k0yn4c2h_xue/" target="_blank">
+        <img src="img/教室借用.png" alt="左廣告" />
+    </a>
+</div>
+
+<!-- 右懸浮廣告 -->
+<div class="floating-ad right-ad" id="rightAd">
+    <button class="close-btn" onclick="hideAd('rightAd')">✕</button>
+    <p>火爆貓蟲在線對戰! 一起加入!!!</p>
+    <a href="https://xuekfk.github.io/" target="_blank">
+        <img src="img/紙鶴.png" alt="右廣告" />
+    </a>
+</div>
+
+<script>
+    const memeImg = document.getElementById('meme');
+    const title = document.getElementById('title');
+    const adviceDiv = document.getElementById('advice');
+    const refreshBtn = document.getElementById('refreshBtn');
+
+    function randomColor() {
+        const r = Math.floor(Math.random() * 156) + 100;
+        const g = Math.floor(Math.random() * 156) + 100;
+        const b = Math.floor(Math.random() * 156) + 100;
+        return `rgb(${r},${g},${b})`;
+    }
+
+    async function fetchMeme() {
+        try {
+            const res = await fetch('https://meme-api.com/gimme');
+            const data = await res.json();
+            memeImg.src = data.url;
+            memeImg.alt = data.title;
+            title.textContent = data.title;
+            document.body.style.backgroundColor = randomColor();
+        } catch (error) {
+            title.textContent = '迷因讀取失敗，請稍後再試';
+            memeImg.src = '';
+            adviceDiv.textContent = '';
+        }
+    }
+
+    function hideAd(adId) {
+        const ad = document.getElementById(adId);
+        ad.style.display = 'none';
+
+        setTimeout(() => {
+            ad.style.display = 'block';
+        }, 1000); // 5 秒後重新顯示
+    }
+
+    refreshBtn.addEventListener('click', fetchMeme);
+    window.onload = fetchMeme;
+</script>
+
+</body>
+</html>
